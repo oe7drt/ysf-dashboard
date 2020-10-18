@@ -1,7 +1,35 @@
 <?php
 
+function getUptime() {
+  $uptime = intval( `cat /proc/uptime | awk '{ print $1 }'` );
+  if( $uptime >= 60 ) {
+    // in minutes
+    $minutes = intval( $uptime / 60 );
+    $seconds = $uptime % 60;
+    if( $minutes >= 60 ) {
+      $hours = intval( $minutes / 60 );
+      $minutes = $minutes % 60;
+      if( $hours >= 24 ) {
+        $days = intval( $hours / 24 );
+        $hours = $hours % 24;
+        $out = "$days days $hours hours $minutes minutes and $seconds seconds";
+      } else {
+        // no days, only hours minutes and seconds
+        $out = "$hours hours $minutes minutes and $seconds seconds";
+      }
+    } else {
+      // mintes < 60 only minuts, hours
+      $out = "$minutes minutes and $seconds seconds";
+    }
+  } else {
+    // only seconds
+    $out = "$uptime seconds";
+  }
+
+  return $out;
+}
+
 function linkCallsign( $callsign ) {
-  $call = $callsign;
   $tmp = explode( "-", $callsign );
   $call = $tmp[0];
   $suffix = $tmp[1];
@@ -34,13 +62,20 @@ function rssiCalc( $val ) {
   return "$rssi ($val dBm)";
 }
 
-function printTable( $time, $callsign, $dgid, $duration, $repeater, $loss = "0", $ber = "0" ) {
+function printTable( $time, $callsign, $dgid, $duration, $repeater, $loss = "---", $ber = "---" ) {
+  if( $duration >= 60 ) {
+    $min = str_pad( intval( $duration / 60 ), 2, "0", STR_PAD_LEFT );
+    $sec = str_pad( $duration % 60, 2, "0", STR_PAD_LEFT );
+    $duration = "$min:$sec";
+  } else {
+    $duration = "00:" . str_pad( $duration, 2, "0", STR_PAD_LEFT );
+  }
   echo "  <tr>\n" .
     "<td>$time</td>\n" .
     "<td>" . linkCallsign( $callsign ) ."</td>\n" .
     "<td>$dgid</td>\n" .
-    "<td>$duration</td>\n" .
     "<td>$repeater</td>\n" .
+    "<td>$duration</td>\n" .
     "<td>$loss</td>\n" .
     "<td>$ber</td>\n" .
   "</tr>\n";
@@ -48,9 +83,9 @@ function printTable( $time, $callsign, $dgid, $duration, $repeater, $loss = "0",
 
 function getLastHeard($limit = MAXENTRIES) {
   $logPath = LOGPATH."/".MMDVM_PREFIX."-*.log";
-  //$logLines =  explode( "\n", `egrep -h "network (data|watchdog)|RF end" $logPath | tail -$limit` );
+  //$logLines =  explode( "\n", `egrep -h "network (data|watchdog)|RF end of transmission" $logPath | tail -$limit` );
   //$logLines =  explode( "\n", `egrep -h "YSF" $logPath | tail -$limit` );
-  $logLines =  explode( "\n", `egrep -h "YSF" $logPath` );
+  $logLines =  explode( "\n", `egrep -h "YSF," $logPath` );
 
   $oldline = "";
 
@@ -62,41 +97,16 @@ function getLastHeard($limit = MAXENTRIES) {
   $duration = "";
   $repeater = "";
 
-  //$key = 0;
-
   $printLines = [];
-  //$old_time = "";
-  $new_time = "";
 
   foreach( $logLines as $line ) {
-    $time = date( "Y-m-d H:i:s", strtotime( substr( $line, 3, 23 )." UTC" ));
-    
-    if( strpos( $line, "network data" )) {
-      //if( empty( $old_time )) {
-      if( !strpos( $oldline, "network data" )) {
-        $old_time = strtotime( substr( $line, 3, 19 ));
-      }
-        //$old_time = substr( $line, 3, 23 );
-      //}
-      $oldline = $line;
-    } else {
-      if( strpos( $line, "network watchdog" )) {
-        $callsign = substr( $oldline, 59, strpos( $oldline, "to" ) - 59 );
-        $dgid = substr( $oldline, 79, strpos( $oldline, "at " ) - 79 );
-        //$duration = substr( $line, 62, strpos( $line, "seconds,", 62 ) - 62 ) . "sec";
-        //$duration = substr( $line, 62, strpos( $line, "seconds,", 62 ) - 62 );
-        $new_time = strtotime( substr( $oldline, 3, 19 ));
-        //$new_time = substr( $line, 3, 19 );
-        //$duration = floatval( $new_time - $old_time );
-        $duration = round( floatval(( $new_time - $old_time )), 1);
-        //$duration = date("i:s", floatval( $new_time - $old_time ) / 100000 );
-        //$old_time = "";
-        echo "<pre><code>$time\nold_time: $old_time\nnew_time: $new_time\n$callsign</code></pre>";
-        $repeater = substr( $oldline, strpos( $oldline, "at " ) + 3, strpos( $oldline, " ", strpos( $oldline, "at " ) + 3) - strpos( $oldline, "at " ) + 3 );
-        $loss = substr( $line, 75, strpos( $line, "%", 75 ) - 74 );
-        $ber = substr( $line, 96, strpos( $line, "%", 96 ) - 95 );
-      } elseif( strpos( $line, "RF end of" )) {
-        $oldline = "";
+  	if( empty( $oldline ) && strpos( $line, "network watchdog" )) {
+      // $oldine=$line;
+      continue;
+    }
+
+  	if( strpos( $line, "RF end of transmission" )) {
+        $time = date( "Y-m-d H:i:s", strtotime( substr( $line, 3, 23 )." UTC" ));
         $callsign = substr( $line, 69, strpos( $line, "to" ) - 69 );
         $dgid = substr( $line, 89, strpos( $line, ",", 89 ) - 89 );
         $duration = trim( substr( $line, 92, strpos( $line, "seconds,", 92 ) - 92 ), " ,");
@@ -106,22 +116,54 @@ function getLastHeard($limit = MAXENTRIES) {
         $ber = substr( $line, 111, strpos( $line, ",", 111 ) - 111 );
         if( empty( $ber )) $ber = "---";
         $repeater = $rssi; // use this testwise, debug
-      } else {
-        $oldline = "";
+  	} elseif( strpos( $line, "network data" )) {
+  		if( strpos( $oldline, "network data" )) {
+        $oldline = $line;
+  			continue;
+  		} else {
+        $time = date( "Y-m-d H:i:s", strtotime( substr( $line, 3, 23 )." UTC" ));
+  			$old_time = strtotime( $time );
+        $oldline=$line;
         continue;
+  		}
+  	} elseif( strpos( $line, "network watchdog" )) {
+      $time = date( "Y-m-d H:i:s", strtotime( substr( $oldline, 3, 23 )." UTC" ));
+		  $callsign = substr( $oldline, 59, strpos( $oldline, "to" ) - 59 );
+		  $dgid = substr( $oldline, 79, strpos( $oldline, "at " ) - 79 );
+		  $new_time = strtotime( date( "Y-m-d H:i:s", strtotime( substr( $oldline, 3, 23 )." UTC" )));
+		  // echo "<pre><code>\$callsign: $callsign at \$dgid: $dgid\n\$old_time: ".date("Y-m-d H:i:s", $old_time ).
+		  // "\n\$new_time: ".date("Y-m-d H:i:s", $new_time )."</code></pre>\n";
+		  // $duration = intval(( $new_time - $old_time )) . ".0";
+      $duration = intval(( $new_time - $old_time ));
+		  $repeater = substr( $oldline, strpos( $oldline, "at " ) + 3, strpos( $oldline, " ", strpos( $oldline, "at " ) + 3) - strpos( $oldline, "at " ) + 3 );
+		  $loss = substr( $line, 75, strpos( $line, "%", 75 ) - 74 );
+      if( $loss == "0%" ) {
+        $loss = "-x-";
       }
-      $tmp = [];
-      $tmp['time'] = $time;
-      $tmp['callsign'] = $callsign;
-      $tmp['dgid'] = $dgid;
-      $tmp['duration'] = $duration;
-      $tmp['repeater'] = $repeater;
-      $tmp['loss'] = $loss;
-      $tmp['ber'] = $ber;
-      array_unshift( $printLines, $tmp );
-      unset( $tmp );
-    } // end if clauses
-  } // end foreach
+		  $ber = substr( $line, 96, strpos( $line, "%", 96 ) - 95 );
+      if( $ber == "0.0%" ) $ber = "-x-";
+  	} else {
+  		continue;
+  	}
+      // echo "<pre><code>\$callsign: $callsign at \$dgid: $dgid\n\$old_time: ".date("Y-m-d H:i:s", $old_time ).
+      //   "\n\$new_time: ".date("Y-m-d H:i:s", $new_time )."</code></pre>\n";
+
+  	// echo "<pre><code>OLD LINE: $oldline\nLINE: $line\n</code></pre>\n";
+
+	$tmp = [];
+	$tmp['time'] = $time;
+	$tmp['callsign'] = $callsign;
+	$tmp['dgid'] = $dgid;
+	$tmp['duration'] = $duration;
+	$tmp['repeater'] = $repeater;
+	$tmp['loss'] = $loss;
+	$tmp['ber'] = $ber;
+	array_unshift( $printLines, $tmp );
+	unset( $tmp );
+
+  	// Lastly we set $oldline as the actual line
+  	$oldline = $line;
+  }
 
   $c = 0;
   

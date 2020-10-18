@@ -30,7 +30,10 @@
           }
         ?>
       </div>
-      <div style="font-size: 0.9em; text-align: right; padding-right: 8px;"><?php echo date("d.m.Y H:i:s T"); ?></div>
+      <div style="font-size: 0.9em; text-align: right; padding-right: 8px;"><?php
+        echo date("d.m.Y H:i:s T") . "<br />\n";
+        echo "Uptime: " . getUptime();
+      ?></div>
       <a href="/" style="color: #ffffff;"><h1>Dashboard for YSF Hotspot OE7DRT</h1></a>
       <p style="padding-right: 5px; text-align: right; color: #ffffff;">
         <a href="/" style="color: #ffffff;">Dashboard</a>
@@ -61,8 +64,8 @@
       <!-- <th>Mode</th> -->
       <th>Callsign</th>
       <th>DG-ID</th>
-      <th>Dur(s)</th>
       <th>Source/Repeater</th>
+      <th>Dur(s)</th>
       <th>Loss</th>
       <th>BER</th>
     </tr>
