@@ -1,4 +1,13 @@
 <?php
+
+/* 
+ * conf.php
+ * Dashboard for YSFGateway
+ * Configuration file
+ * Dominic Reich, OE7DRT, oe7drt@oevsv.at
+ *
+ */
+
   if (isset($_GET['debug'])) {
   	define("DEBUG", true);
   }

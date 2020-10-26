@@ -1,5 +1,14 @@
 <?php
 
+/* 
+ * func.php
+ * Dashboard for YSFGateway
+ * Manually compiled and configured MMDVMHost with YSFGateway
+ * master branch (no DG-ID)
+ * connecting to YCS232 with multiple DG-ID support
+ *
+ */
+
 function getUptime() {
   $uptime = intval( `cat /proc/uptime | awk '{ print $1 }'` );
   if( $uptime >= 60 ) {

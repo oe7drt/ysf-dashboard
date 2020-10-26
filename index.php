@@ -1,4 +1,12 @@
 <?php
+
+/* 
+ * index.php
+ * Dashboard for YSFGateway
+ * Dominic Reich, OE7DRT, oe7drt@oevsv.at
+ *
+ */
+ 
   $time_start = microtime(true);
   include("conf.php");
   include("func.php");
@@ -39,6 +47,8 @@
         <a href="/" style="color: #ffffff;">Dashboard</a>
         | <a href="http://49.12.77.74/ysf-reflector/" style="color: #ffffff;" target="_blank">
           YSF-<strong>Test</strong>-Reflector Dashboard</a>
+        | <a href="https://oe7drt.com" style="color: #ffffff;" target="_blank">
+          My personal website</a>
       </p>
       <div style="font-size: 8px; text-align: left; padding-left: 8px; ">
       </div>
