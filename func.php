@@ -92,8 +92,6 @@ function printTable( $time, $callsign, $dgid, $duration, $repeater, $loss = "---
 
 function getLastHeard($limit = MAXENTRIES) {
   $logPath = LOGPATH."/".MMDVM_PREFIX."-*.log";
-  //$logLines =  explode( "\n", `egrep -h "network (data|watchdog)|RF end of transmission" $logPath | tail -$limit` );
-  //$logLines =  explode( "\n", `egrep -h "YSF" $logPath | tail -$limit` );
   $logLines =  explode( "\n", `egrep -h "YSF," $logPath` );
 
   $oldline = "";
@@ -140,9 +138,6 @@ function getLastHeard($limit = MAXENTRIES) {
 		  $callsign = substr( $oldline, 59, strpos( $oldline, "to" ) - 59 );
 		  $dgid = substr( $oldline, 79, strpos( $oldline, "at " ) - 79 );
 		  $new_time = strtotime( date( "Y-m-d H:i:s", strtotime( substr( $oldline, 3, 23 )." UTC" )));
-		  // echo "<pre><code>\$callsign: $callsign at \$dgid: $dgid\n\$old_time: ".date("Y-m-d H:i:s", $old_time ).
-		  // "\n\$new_time: ".date("Y-m-d H:i:s", $new_time )."</code></pre>\n";
-		  // $duration = intval(( $new_time - $old_time )) . ".0";
       $duration = intval(( $new_time - $old_time ));
 		  $repeater = substr( $oldline, strpos( $oldline, "at " ) + 3, strpos( $oldline, " ", strpos( $oldline, "at " ) + 3) - strpos( $oldline, "at " ) + 3 );
 		  $loss = substr( $line, 75, strpos( $line, "%", 75 ) - 74 );
@@ -154,10 +149,6 @@ function getLastHeard($limit = MAXENTRIES) {
   	} else {
   		continue;
   	}
-      // echo "<pre><code>\$callsign: $callsign at \$dgid: $dgid\n\$old_time: ".date("Y-m-d H:i:s", $old_time ).
-      //   "\n\$new_time: ".date("Y-m-d H:i:s", $new_time )."</code></pre>\n";
-
-  	// echo "<pre><code>OLD LINE: $oldline\nLINE: $line\n</code></pre>\n";
 
 	$tmp = [];
 	$tmp['time'] = $time;
