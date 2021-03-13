@@ -61,7 +61,9 @@ body, font {
     background : #2d2d2d;
     text-decoration : none;
     color : #ffffff;
-    font-family : verdana, arial, sans-serif;
+    //font-family : verdana, arial, sans-serif;
+    font-family : monospace;
+    font-size: 1.1em;
     text-align : left;
     padding : 5px 5px 5px 5px;
     border-radius: 10px 10px 0 0;
@@ -71,6 +73,10 @@ body, font {
     -ms-border-radius: 10px 10px 0px 0px;
     overflow-wrap: break-word;
  }
+
+.header h1 {
+  font-family: verdana, arial, sans-serif;
+}
 
 .content {
     padding : 5px 5px 5px 5px;
