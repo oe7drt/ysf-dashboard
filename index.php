@@ -15,7 +15,7 @@
   <meta name=viewport content="width=device-width,initial-scale=1">
   <meta name=generator content="Sublime Text 3 / Vim">
   <meta name="author" content="Dominic Reich">
-  <title>OE7DRT Hotspot Dashboard</title>
+  <title>OE7DRT YSF Hotspot Dashboard</title>
   <link rel="stylesheet" type="text/css" media="screen" href="dash.min.css" />
   <meta http-equiv="refresh" content="60">
 </head>
