@@ -26,12 +26,12 @@
         Hostname: <?php echo trim(`hostname`); ?> (<?php echo trim(`hostname -I | cut -d' ' -f1`); ?>)<br />
         <?php
           $iniFile  = YSFGW_INI;
-          $logline  = `egrep -h Options $iniFile | tail -n 1`;
+          $logline  = `egrep -h "^Options" $iniFile | tail -n 1`;
           //$options  = substr($logline, strpos($logline, "Options="));
           $optionsLine = explode( "=", $logline );
           $DGIDs = explode( ",", $optionsLine[1] );
 
-          echo "Static DG-IDs: ";
+          echo "Static DG-IDs (" . count( $DGIDs ) . "): ";
 
           foreach( $DGIDs as $DGID ) {
             echo "$DGID ";
