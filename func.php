@@ -71,7 +71,7 @@ function rssiCalc( $val ) {
   return "$rssi ($val dBm)";
 }
 
-function printTable( $time, $callsign, $dgid, $duration, $repeater, $loss = "---", $ber = "---" ) {
+function printTable( $id=0, $time, $callsign, $dgid, $duration, $repeater, $loss = "---", $ber = "---" ) {
   if( $duration >= 60 ) {
     $min = str_pad( intval( $duration / 60 ), 2, "0", STR_PAD_LEFT );
     $sec = str_pad( $duration % 60, 2, "0", STR_PAD_LEFT );
@@ -80,6 +80,7 @@ function printTable( $time, $callsign, $dgid, $duration, $repeater, $loss = "---
     $duration = "00:" . str_pad( $duration, 2, "0", STR_PAD_LEFT );
   }
   echo "  <tr>\n" .
+    "<td>$id</td>\n" .
     "<td>$time</td>\n" .
     "<td>" . linkCallsign( $callsign ) ."</td>\n" .
     "<td>$dgid</td>\n" .
@@ -115,7 +116,9 @@ function getLastHeard($limit = MAXENTRIES) {
   	if( strpos( $line, "RF end of transmission" )) {
         $time = date( "Y-m-d H:i:s", strtotime( substr( $line, 3, 23 )." UTC" ));
         $callsign = substr( $line, 69, strpos( $line, "to" ) - 69 );
-        $dgid = substr( $line, 89, strpos( $line, ",", 89 ) - 89 );
+        //$dgid = substr( $line, 83, strpos( $line, ",", 83 ) - 83 );
+        $dgid = substr( $line, strpos( $line, "to " ) + 3, strpos( $line, " ", strpos( $line, "to " ) + 3) - strpos( $line, "to " ) + 3 );
+		    //$repeater = substr( $oldline, strpos( $oldline, "at " ) + 3, strpos( $oldline, " ", strpos( $oldline, "at " ) + 3) - strpos( $oldline, "at " ) + 3 );
         $duration = round( trim( substr( $line, 92, strpos( $line, "seconds,", 92 ) - 92 ), " ," ));
         $rssi_values = explode( "/", substr( $line, 113, strpos( $line, "dBm", 113 ) - 113 ));
         $rssi = rssiCalc( round( array_sum( $rssi_values ) / count( $rssi_values )));
@@ -136,7 +139,8 @@ function getLastHeard($limit = MAXENTRIES) {
   	} elseif( strpos( $line, "network watchdog" )) {
       $time = date( "Y-m-d H:i:s", strtotime( substr( $oldline, 3, 23 )." UTC" ));
 		  $callsign = substr( $oldline, 59, strpos( $oldline, "to" ) - 59 );
-		  $dgid = substr( $oldline, 79, strpos( $oldline, "at " ) - 79 );
+		  $dgid = substr( $oldline, 73, strpos( $oldline, "at " ) - 73 );
+      //$dgid = substr( $oldline, strpos( $oldline, "to " ) + 3, strpos( $oldline, " ", strpos( $oldline, "to " ) + 3) - strpos( $oldline, "to " ) + 3 );
 		  $new_time = strtotime( date( "Y-m-d H:i:s", strtotime( substr( $oldline, 3, 23 )." UTC" )));
       $duration = intval(( $new_time - $old_time ));
 		  $repeater = substr( $oldline, strpos( $oldline, "at " ) + 3, strpos( $oldline, " ", strpos( $oldline, "at " ) + 3) - strpos( $oldline, "at " ) + 3 );
@@ -169,6 +173,7 @@ function getLastHeard($limit = MAXENTRIES) {
   
   foreach( $printLines as $key=>$line ) {
     printTable(
+      $c + 1,
       $line['time'],
       $line['callsign'],
       $line['dgid'],

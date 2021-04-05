@@ -72,6 +72,7 @@
       </table>
   <table align="center">
     <tr>
+      <th>No.</th>
       <th>Time (<?php echo date("T"); ?>)</th>
       <!-- <th>Mode</th> -->
       <th>Callsign</th>
