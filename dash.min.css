@@ -40,7 +40,7 @@
 }
 
 .container {
-    width: 95%;
+    max-width: 900px;
     text-align: left;
     margin: auto;
     background : #ffffff;
@@ -147,7 +147,7 @@ table {
     color: #ffffff;
     background: #000000;
     font-family: verdana,arial,sans-serif;
-    width: 80%;
+    width: 100%;
     white-space: nowrap;
 }
 
