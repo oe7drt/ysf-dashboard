@@ -15,7 +15,7 @@
   <meta name=viewport content="width=device-width,initial-scale=1">
   <meta name=generator content="Sublime Text 3 / Vim">
   <meta name="author" content="Dominic Reich">
-  <title>OE7DRT YSF Hotspot Dashboard</title>
+  <title>YSF Hotspot Dashboard</title>
   <link rel="stylesheet" type="text/css" media="screen" href="dash.min.css" />
   <meta http-equiv="refresh" content="60">
 </head>
@@ -42,7 +42,7 @@
         echo date("d.m.Y H:i:s T") . "<br />\n";
         echo "Uptime: " . getUptime();
       ?></div>
-      <a href="/" style="color: #ffffff;"><h1>Dashboard for YSF Hotspot OE7DRT</h1></a>
+      <a href="/" style="color: #ffffff;"><h1>YSF Hotspot Dashboard for OE7DRT</h1></a>
       <p style="padding-right: 5px; text-align: right; color: #ffffff;">
         <a href="/" style="color: #ffffff;">Dashboard</a>
         | <a href="http://49.12.77.74/ysf-reflector/" style="color: #ffffff;" target="_blank">
