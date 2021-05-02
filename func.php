@@ -54,6 +54,18 @@ function linkCallsign( $callsign ) {
   return $call;
 }
 
+function qrzRepeater( $rpt ) {
+  /* $pos = strpos( $rpt, "OE" );
+  if( $pos !== false) {
+    $rpt = "<a href=\"https://qrz.com/db/$rpt\" target=\"_blank\">$rpt</a>";
+  } */
+  if( preg_match( '/[A-Z]{1,2}\d[A-Z]{1,3}/', $rpt )) {
+    $rpt = "<a href=\"https://qrz.com/db/$rpt\" target=\"_blank\">$rpt</a>";
+  }
+
+  return $rpt;
+}
+
 function rssiCalc( $val ) {
   if( $val > -53 ) $rssi = "S9+40dB";
   else if( $val > -63 ) $rssi = "S9+30dB";
@@ -138,13 +150,18 @@ function getLastHeard($limit = MAXENTRIES) {
   		}
   	} elseif( strpos( $line, "network watchdog" )) {
       $time = date( "Y-m-d H:i:s", strtotime( substr( $oldline, 3, 23 )." UTC" ));
-		  $callsign = substr( $oldline, 59, strpos( $oldline, "to" ) - 59 );
-		  $dgid = substr( $oldline, 73, strpos( $oldline, "at " ) - 73 );
+		  $callsign = trim( substr( $oldline, 59, strpos( $oldline, "to" ) - 59 ));
+      if( strpos( $oldline, "DG-ID" )) {
+		    $dgid = substr( $oldline, 79, strpos( $oldline, "at " ) - 79 );
+      } else {
+		    $dgid = substr( $oldline, 73, strpos( $oldline, "at " ) - 73 );
+      }
       //$dgid = substr( $oldline, strpos( $oldline, "to " ) + 3, strpos( $oldline, " ", strpos( $oldline, "to " ) + 3) - strpos( $oldline, "to " ) + 3 );
 		  $new_time = strtotime( date( "Y-m-d H:i:s", strtotime( substr( $oldline, 3, 23 )." UTC" )));
       $duration = intval(( $new_time - $old_time ));
-		  $repeater = substr( $oldline, strpos( $oldline, "at " ) + 3, strpos( $oldline, " ", strpos( $oldline, "at " ) + 3) - strpos( $oldline, "at " ) + 3 );
-		  $loss = substr( $line, 75, strpos( $line, "%", 75 ) - 74 );
+      $rpt = substr( $oldline, strpos( $oldline, "at " ) + 3, strpos( $oldline, " ", strpos( $oldline, "at " ) + 3) - strpos( $oldline, "at " ) + 3 );
+      $repeater = qrzRepeater( trim( $rpt ));
+      $loss = substr( $line, 75, strpos( $line, "%", 75 ) - 74 );
       if( $loss == "0%" ) {
         $loss = "-x-";
       }
